@@ -11,7 +11,7 @@ data_test, X_test, Y_test = datamodules.loadXML(
     polarities=['negative', 'neutral', 'positive'])
 
 # #convert every word to index
-word2index, X_train_indices, X_test_indices, X_train_wl, X_train_wr, X_test_wl, X_test_wr = datamodules.word2index(
+word2index, X_train_indices, X_test_indices, X_train_left2right, X_train_right2left, X_test_left2right, X_test_right2left = datamodules.word2index(
     X_train, X_test, data_train, data_test)
 
 # #load global vectors
@@ -25,20 +25,46 @@ emb_matrix = modelAPI.getEmbeddingMatrix(word2index, vocab_len,
 embedding = modelAPI.getEmbedding(vocab_len, embed_vector_len, emb_matrix)
 
 # #build a vanilla LSTM modelAPI
-vanillaLSTM = modelAPI.vanillaLSTM(embedding=embedding, input_shape=((69, )))
-vanillaLSTM.fit(X_train_indices,
-                Y_train,
-                batch_size=64,
-                epochs=10,
-                validation_data=(X_test_indices, Y_test))
+# vanillaLSTM = modelAPI.vanillaLSTM(embedding=embedding, input_shape=((69, )))
+# vanillaLSTM.fit(X_train_indices,
+#                 Y_train,
+#                 batch_size=64,
+#                 epochs=10,
+#                 validation_data=(X_test_indices, Y_test))
 #vanillaLSTM.save('vanillaLSTM')
+
+#building a target LSTM
+Train_targets = data_train['aspectTerm'].tolist()
+Test_targets = data_test['aspectTerm'].tolist()
+
+X_train_left2right_ap_emb = modelAPI.getTargetWordEmbedding(
+    word2index, X_train_left2right, Train_targets)
+X_train_right2left_ap_emb = modelAPI.getTargetWordEmbedding(
+    word2index, X_train_right2left, Train_targets)
+X_test_left2right_ap_emb = modelAPI.getTargetWordEmbedding(
+    word2index, X_test_left2right, Test_targets)
+X_test_right2left_ap_emb = modelAPI.getTargetWordEmbedding(
+    word2index, X_test_right2left, Test_targets)
+
+targetLSTM = modelAPI.targetLSTM(embedding=embedding, input_shape=((61, )))
+targetLSTM.fit([
+    X_train_left2right, X_train_right2left, X_train_left2right_ap_emb,
+    X_train_right2left_ap_emb
+],
+               Y_train,
+               batch_size=64,
+               epochs=10,
+               validation_data=([
+                   X_test_left2right, X_test_right2left,
+                   X_test_left2right_ap_emb, X_test_right2left_ap_emb
+               ], Y_test))
 
 #load a trained modelAPI
 #reconstructed_model = modelAPI.loadModel('vanillaLSTM')
 
 #plot the trained modelAPI accuracy
-modelAPI.plot(vanillaLSTM, "Vanilla LSTM", "batch_size=64, epochs=10")
-
+#modelAPI.plot(vanillaLSTM, "Vanilla LSTM", "batch_size=64, epochs=10")
+modelAPI.plot(targetLSTM, "Target LSTM", "batch_size=64, epochs=10")
 #embedding layer for targetwords
 # targetwordEmbedding_train = modelAPI.getTargetWordEmbedding(word2index, X_train_indices, data_train['aspectTerm'].tolist())
 # targetwordEmbedding_test = modelAPI.getTargetWordEmbedding(word2index, X_test_indices, data_test['aspectTerm'].tolist())

@@ -1,4 +1,3 @@
-from datamodules import word2index
 import numpy as np
 from keras.layers.embeddings import Embedding
 from keras.layers import LSTM, Dropout, Dense, Input
@@ -75,18 +74,50 @@ def vanillaLSTM(embedding, input_shape):
     return model
 
 
+def targetLSTM(embedding, input_shape):
+    left2Right_indices = Input(input_shape)
+    right2Left_indices = Input(input_shape)
+    left2RightWordEmb = embedding(left2Right_indices)
+    right2LeftWordEmb = embedding(right2Left_indices)
+
+    left2RightTarget_indices = Input(input_shape)
+    left2RightTargetEmb = embedding(left2RightTarget_indices)
+    right2LeftTarget_indices = Input(input_shape)
+    right2LeftTargetEmb = embedding(right2LeftTarget_indices)
+
+    right2LeftEmb = tf.concat([right2LeftWordEmb, right2LeftTargetEmb], 2)
+    left2rightEmb = tf.concat([left2RightWordEmb, left2RightTargetEmb], 2)
+
+    h = LSTM(128)(left2rightEmb)
+    h = Dropout(0.2)(h)
+
+    h2 = LSTM(128)(right2LeftEmb)
+    h2 = Dropout(0.2)(h2)
+
+    h2 = tf.concat([h, h2], 1)
+    o = Dense(3, activation='softmax')(h2)
+
+    model = Model(inputs=[
+        left2Right_indices, right2Left_indices, left2RightTarget_indices,
+        right2LeftTarget_indices
+    ],
+                  outputs=o)
+    model.compile(optimizer=adam,
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    return model
+
+
 def loadModel(model_dir):
     return keras.models.load_model(model_dir)
 
 
 def plot(model, title, para):
     saveDir = "result/" + title + ".pdf"
-    m_epoch = 0
     max_accuracy = 0
     max_val_accuracy = 0
     for i in range(len(model.history.history['val_accuracy'])):
         if model.history.history['val_accuracy'][i] > max_val_accuracy:
-            m_epoch = i
             max_val_accuracy = model.history.history['val_accuracy'][i]
 
     max_accuracy = str(round(max_accuracy * 100, 2))
@@ -113,5 +144,7 @@ def plot(model, title, para):
                   label='test data accuracy')
     lossPlot.set_xlabel("Epoch \n\n" + summary)
     lossPlot.set_ylabel("Loss")
+    fig.legend()
     fig.tight_layout()
+    fig.show()
     fig.savefig(saveDir)

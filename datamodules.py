@@ -6,7 +6,6 @@ import string
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 
-
 def loadXML(path, polarities):
     tree = ET.parse(path)
     sentences = tree.getroot()
@@ -15,7 +14,6 @@ def loadXML(path, polarities):
     polarity_ = []
     wl = []
     wr = []
-
     for sentence in sentences.findall('sentence'):
         aspectTerms = sentence.find('aspectTerms')
         if aspectTerms != None:
@@ -30,16 +28,13 @@ def loadXML(path, polarities):
                         str.maketrans('', '', string.punctuation)))
                     wr.append(text[int(span[1]):].translate(
                         str.maketrans('', '', string.punctuation)))
-                    apectTerm = aT.get('term').lower()
                     texts.append(text_withoutPun)
-                    aspectTerms_.append(apectTerm)
                     polarity_.append(polarity)
 
-    sentence = pd.DataFrame(columns=['text', 'aspectTerm'])
+    sentence = pd.DataFrame(columns=['text'])
     sentence['text'] = texts
-    sentence['wl'] = wl
-    sentence['wr'] = wr
-    sentence['aspectTerm'] = aspectTerms_
+    sentence['left2right'] = wl
+    sentence['right2left'] = wr
     sentence['polarity'] = polarity_
     sentence['label'] = sentence['polarity'].astype('category').cat.codes
     sentence = sentence.sample(frac=1, random_state=1221)
@@ -47,7 +42,6 @@ def loadXML(path, polarities):
     Y = np.eye(3)[sentence['label'].values.reshape(-1)]
 
     return sentence, X, Y
-
 
 def loadGloVec(glove_vec):
     with open(glove_vec, 'r', encoding='UTF-8') as f:
@@ -59,26 +53,16 @@ def loadGloVec(glove_vec):
             word_to_vec_map[curr_word] = np.array(w_line[1:], dtype=np.float64)
     return word_to_vec_map
 
-
 def word2index(X_train, X_test, data_train, data_test):
-    X_train_wl = [text.strip() for text in data_train['wl']]
-    X_train_wr = [text.strip() for text in data_train['wr']]
-    X_test_wl = [text.strip() for text in data_test['wl']]
-    X_test_wr = [text.strip() for text in data_test['wr']]
+    X_train_wl = [text.strip() for text in data_train['left2right']]
+    X_train_wr = [text.strip() for text in data_train['right2left']]
+    X_test_wl = [text.strip() for text in data_test['left2right']]
+    X_test_wr = [text.strip() for text in data_test['right2left']]
     tokenizer = Tokenizer(num_words=5000)
     tokenizer.fit_on_texts(X_train)
     tokenizer.fit_on_texts(X_test)
     words_to_index = tokenizer.word_index
     i = len(words_to_index) + 1
-    for ap in data_train["aspectTerm"]:
-        if ap not in words_to_index.keys():
-            words_to_index[ap] = i
-            i += 1
-
-    for ap in data_test["aspectTerm"]:
-        if ap not in words_to_index.keys():
-            words_to_index[ap] = i
-            i += 1
 
     X_train_indices = tokenizer.texts_to_sequences(X_train)
     X_test_indices = tokenizer.texts_to_sequences(X_test)
@@ -106,15 +90,33 @@ def word2index(X_train, X_test, data_train, data_test):
     return words_to_index, X_train_indices, X_test_indices, X_train_wl, X_train_wr, X_test_wl, X_test_wr
 
 
-def sentence2index(sentence, word2index, index_unknown):
-    sentence = sentence.translate(str.maketrans('', '', string.punctuation))
-    indeices = []
-    for w in sentence.split(' '):
-        w = w.strip().lower()
-        if w in word2index.keys():
-            indeices.append(word2index[w])
-        else:
-            indeices.append(index_unknown)
 
-    indeices = pad_sequences([indeices], maxlen=61)
-    return indeices[0]
+def sentence2index(sentence, target, word2index):
+    sentence = sentence.translate(str.maketrans('', '', string.punctuation))
+    sentence = sentence.split(' ')
+    print(sentence)
+    left2rightTemp = sentence[:target]
+    right2leftTemp = sentence[target + 1:]
+    print(right2leftTemp)
+    right2leftTemp = right2leftTemp[::-1]
+    left2rightIndecies = []
+    right2leftIndecies = []
+    print(left2rightTemp)
+    print(right2leftTemp)
+    for word in left2rightTemp:
+        word = word.strip().lower()
+        if word in word2index.keys():
+            left2rightIndecies.append(word2index[word])
+        else:
+            left2rightIndecies.append(len(word2index) + 1)
+
+    for word in right2leftTemp:
+        word = word.strip().lower()
+        if word in word2index.keys():
+            right2leftIndecies.append(word2index[word])
+        else:
+            right2leftIndecies.append(len(word2index) + 1)
+
+    return pad_sequences([left2rightIndecies],
+                         maxlen=61), pad_sequences([right2leftIndecies],
+                                                   maxlen=61)

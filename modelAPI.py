@@ -13,7 +13,7 @@ adam = Adam(learning_rate=0.001)
 
 
 def getEmbeddingMatrix(word2index, vocab_len, embed_vector_len, gloVec):
-    emb_matrix = np.zeros((vocab_len + 1, embed_vector_len))
+    emb_matrix = np.zeros((vocab_len + 2, embed_vector_len))
     for word, index in word2index.items():
         split_word = word.split()
         if len(split_word) == 1:
@@ -32,34 +32,16 @@ def getEmbeddingMatrix(word2index, vocab_len, embed_vector_len, gloVec):
                 emb_matrix[index, :] = average_embedding / total
             else:
                 emb_matrix[index, :] = average_embedding
+    emb_matrix[-1] = emb_matrix.mean(axis=0)
     return emb_matrix
 
 
 def getEmbedding(vocab_len, embed_vector_len, emb_matrix):
-    return Embedding(input_dim=vocab_len + 1,
+    return Embedding(input_dim=vocab_len + 2,
                      output_dim=embed_vector_len,
                      input_length=69,
                      weights=[emb_matrix],
                      trainable=False)
-
-
-def getTargetWordEmbedding(word2index, indices, targetwords):
-    embedding = []
-    for i in range(len(targetwords)):
-        row = []
-        ap = targetwords[i]
-        indice = indices[i]
-        for index in indice:
-            if index > 0:
-                if word2index.get(ap):
-                    row.append(word2index.get(ap))
-                else:
-                    print("not found")
-            else:
-                row.append(0)
-        embedding.append(np.array(row))
-    return np.array(embedding)
-
 
 def vanillaLSTM(embedding, input_shape):
     X_indices = Input(input_shape)
@@ -80,26 +62,17 @@ def targetLSTM(embedding, input_shape):
     left2RightWordEmb = embedding(left2Right_indices)
     right2LeftWordEmb = embedding(right2Left_indices)
 
-    left2RightTarget_indices = Input(input_shape)
-    left2RightTargetEmb = embedding(left2RightTarget_indices)
-    right2LeftTarget_indices = Input(input_shape)
-    right2LeftTargetEmb = embedding(right2LeftTarget_indices)
-
-    right2LeftEmb = tf.concat([right2LeftWordEmb, right2LeftTargetEmb], 2)
-    left2rightEmb = tf.concat([left2RightWordEmb, left2RightTargetEmb], 2)
-
-    h = LSTM(128)(left2rightEmb)
+    h = LSTM(128)(left2RightWordEmb)
     h = Dropout(0.2)(h)
 
-    h2 = LSTM(128)(right2LeftEmb)
+    h2 = LSTM(128)(right2LeftWordEmb)
     h2 = Dropout(0.2)(h2)
 
     h2 = tf.concat([h, h2], 1)
     o = Dense(3, activation='softmax')(h2)
 
     model = Model(inputs=[
-        left2Right_indices, right2Left_indices, left2RightTarget_indices,
-        right2LeftTarget_indices
+        left2Right_indices, right2Left_indices
     ],
                   outputs=o)
     model.compile(optimizer=adam,

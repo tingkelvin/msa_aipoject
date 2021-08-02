@@ -1,27 +1,23 @@
 import xml.etree.ElementTree as ET
 import numpy as np
+from numpy.core.numeric import indices
 import pandas as pd
 import string
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
+
 
 def loadXML(path, polarities):
     tree = ET.parse(path)
     sentences = tree.getroot()
     texts = []
     aspectTerms_ = []
-    head = []
-    head_rel = []
     polarity_ = []
-    aspectTerms_rel = []
-    embed = []
-    span_ = []
     wl = []
     wr = []
-    single_term = 0
+
     for sentence in sentences.findall('sentence'):
         aspectTerms = sentence.find('aspectTerms')
-        aspectTerm = []
         if aspectTerms != None:
             text = sentence.find('text').text.lower()
             text_withoutPun = text.translate(
@@ -38,6 +34,7 @@ def loadXML(path, polarities):
                     texts.append(text_withoutPun)
                     aspectTerms_.append(apectTerm)
                     polarity_.append(polarity)
+
     sentence = pd.DataFrame(columns=['text', 'aspectTerm'])
     sentence['text'] = texts
     sentence['wl'] = wl
@@ -51,6 +48,7 @@ def loadXML(path, polarities):
 
     return sentence, X, Y
 
+
 def loadGloVec(glove_vec):
     with open(glove_vec, 'r', encoding='UTF-8') as f:
         words = set()
@@ -60,6 +58,7 @@ def loadGloVec(glove_vec):
             curr_word = w_line[0]
             word_to_vec_map[curr_word] = np.array(w_line[1:], dtype=np.float64)
     return word_to_vec_map
+
 
 def word2index(X_train, X_test, data_train, data_test):
     X_train_wl = [text.strip() for text in data_train['wl']]
@@ -75,35 +74,47 @@ def word2index(X_train, X_test, data_train, data_test):
         if ap not in words_to_index.keys():
             words_to_index[ap] = i
             i += 1
-    
+
     for ap in data_test["aspectTerm"]:
         if ap not in words_to_index.keys():
             words_to_index[ap] = i
             i += 1
-    
+
     X_train_indices = tokenizer.texts_to_sequences(X_train)
     X_test_indices = tokenizer.texts_to_sequences(X_test)
-    
+
     X_train_wl = tokenizer.texts_to_sequences(X_train_wl)
     X_train_wr = tokenizer.texts_to_sequences(X_train_wr)
     X_train_wr = [x[::-1] for x in X_train_wr]
     X_test_wl = tokenizer.texts_to_sequences(X_test_wl)
     X_test_wr = tokenizer.texts_to_sequences(X_test_wr)
     X_test_wr = [x[::-1] for x in X_test_wr]
-    
-    
+
     X_train_indices = pad_sequences(X_train_indices)
     maxLen = max([len(i) for i in X_train_indices])
-    X_test_indices = pad_sequences(X_test_indices,maxlen=maxLen)
-    
-    
+    X_test_indices = pad_sequences(X_test_indices, maxlen=maxLen)
+
     X_train_wl = pad_sequences(X_train_wl)
     X_train_wr = pad_sequences(X_train_wr)
-    
+
     maxLen = max([len(i) for i in X_train_wl])
-    X_test_wl = pad_sequences(X_test_wl, maxlen= maxLen)
-    
+    X_test_wl = pad_sequences(X_test_wl, maxlen=maxLen)
+
     maxLen = max([len(i) for i in X_train_wr])
-    X_test_wr = pad_sequences(X_test_wr, maxlen= maxLen)
-    
+    X_test_wr = pad_sequences(X_test_wr, maxlen=maxLen)
+
     return words_to_index, X_train_indices, X_test_indices, X_train_wl, X_train_wr, X_test_wl, X_test_wr
+
+
+def sentence2index(sentence, word2index, index_unknown):
+    sentence = sentence.translate(str.maketrans('', '', string.punctuation))
+    indeices = []
+    for w in sentence.split(' '):
+        w = w.strip().lower()
+        if w in word2index.keys():
+            indeices.append(word2index[w])
+        else:
+            indeices.append(index_unknown)
+
+    indeices = pad_sequences([indeices], maxlen=61)
+    return indeices[0]

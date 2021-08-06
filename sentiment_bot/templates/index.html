@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelvin's Sentiment Bot</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles.css')}}">
+    <script src="{{ url_for('static', filename = 'script.js')}}" rel=script></script>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-box" id='chat'>
+            <div class="balon2">
+                <a> What is your sentence? </a>
+            </div>     
+        </div>
+
+        <div class="chat-text" > 
+            <div class="input-group ">
+                <input type="text" class="form-control" placeholder="Enter your text here."  id="user_input" aria-describedby="button-addon1"> 
+                <button class="btn btn-primary" type="button" id="button-addon1" onclick="sendHandler()">Send</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

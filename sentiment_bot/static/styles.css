@@ -1,0 +1,42 @@
+.chat-box{
+    height: 90vh;
+    overflow-y: scroll;
+}
+.chat-text{
+    height: 10vh;
+}
+body{
+    overflow: hidden;
+}
+.bot{
+    text-align: right;
+}
+
+.container{
+    margin: 25px 25px 25px 25px;
+}
+.balon1, .balon2 {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+    }
+
+
+.balon1 a {
+    position: right;
+    background: #42a5f5;
+    color: #fff !important;
+    border-radius: 20px 20px 3px 20px;
+    display: block;
+    max-width: 75%;
+    padding: 7px 13px 7px 13px;
+
+    }
+
+.balon2 a {
+    background: #f1f1f1;
+    color: #000 !important;
+    border-radius: 20px 20px 20px 3px;
+    display: block;
+    max-width: 75%;
+    padding: 7px 13px 7px 13px;
+}

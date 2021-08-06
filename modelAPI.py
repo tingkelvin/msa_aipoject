@@ -1,10 +1,10 @@
 import numpy as np
-from keras.layers.embeddings import Embedding
-from keras.layers import LSTM, Dropout, Dense, Input
-from keras.models import Model
-from keras.optimizers import Adam
-import keras
 import tensorflow as tf
+from tensorflow.keras.layers import LSTM, Dropout, Dense, Input
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.models import load_model
+from tensorflow.keras.optimizers import Adam
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages, FigureCanvasPdf
 
@@ -82,7 +82,7 @@ def targetLSTM(embedding, input_shape):
 
 
 def loadModel(model_dir):
-    return keras.models.load_model(model_dir)
+    return load_model(model_dir)
 
 
 def plot(model, title, para):

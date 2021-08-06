@@ -1,16 +1,14 @@
 import xml.etree.ElementTree as ET
 import numpy as np
-from numpy.core.numeric import indices
 import pandas as pd
 import string
-from keras.preprocessing.sequence import pad_sequences
-from keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
 
 def loadXML(path, polarities):
     tree = ET.parse(path)
     sentences = tree.getroot()
     texts = []
-    aspectTerms_ = []
     polarity_ = []
     wl = []
     wr = []
@@ -45,7 +43,6 @@ def loadXML(path, polarities):
 
 def loadGloVec(glove_vec):
     with open(glove_vec, 'r', encoding='UTF-8') as f:
-        words = set()
         word_to_vec_map = {}
         for line in f:
             w_line = line.split()
@@ -62,7 +59,6 @@ def word2index(X_train, X_test, data_train, data_test):
     tokenizer.fit_on_texts(X_train)
     tokenizer.fit_on_texts(X_test)
     words_to_index = tokenizer.word_index
-    i = len(words_to_index) + 1
 
     X_train_indices = tokenizer.texts_to_sequences(X_train)
     X_test_indices = tokenizer.texts_to_sequences(X_test)

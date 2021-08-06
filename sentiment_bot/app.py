@@ -15,10 +15,7 @@ def hello():
 @app.route('/classify/')
 def classify():
     sentence = request.args.get('sentence')
-    print(sentence)
     target= int(request.args.get('target'))
-    print(target)
-
     result = getSentiment(sentence, target)
     return result
 

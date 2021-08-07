@@ -1,7 +1,7 @@
 The project involed building a machine learning model for a target based sentiment analysis.
 The sentiment analysis can be processed in web application with a chat box interface.
 The model is delpoyed to azure function. 
-And the chat box web application is delpoyed to web appication in azure.
+And the chat box web application is delpoyed to web appication in azure. Here is the website.
 https://sentbot.azurewebsites.net/
 
 The web application will collect the user's text and target word. Then the send these data to the machine learning model though an API azure function.
@@ -11,7 +11,7 @@ The system able to capture the level of different sentiment.
 ![alt text](https://i.ibb.co/LY86QV8/Screen-Shot-2021-08-07-at-11-49-35-pm.png)
 
 It is also able to capture sentiment of ambiguous meaning
-
+![alt text](https://i.ibb.co/PDwxwxw/Screen-Shot-2021-08-07-at-11-52-45-pm.png)
 
 I have only tested the web app in google chrome. It might take some time to establish connection in the first time running the application.
 

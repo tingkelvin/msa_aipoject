@@ -19,7 +19,7 @@ The model is builded from tensorflow library.
 The training of the model is done in the train.py script.
 
 To run,
-Due to the upload size limmit, I was not able to upload the data files.
+Due to the upload size limit, I was not able to upload the vector representation of words.
 Download the following files and unzip and put the data in the /data
 https://nlp.stanford.edu/data/glove.twitter.27B.zip
 ```
@@ -51,3 +51,4 @@ flask run
 The website usually host in http://127.0.0.1:5000/
 
 The data file contains the training data and testing data.
+The training data and testing data are composed of reviews comments from resturant

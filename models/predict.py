@@ -37,7 +37,7 @@ def sentence2index(sentence, target, word2index):
                          maxlen=61), pad_sequences([right2leftIndecies],
                                                    maxlen=61)
 
-sentence = "The food sucks"
+sentence = "The food is good"
 left2rightIndecies, right2leftIndecies = sentence2index(
     sentence=sentence,
     target=1,

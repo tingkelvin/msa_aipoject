@@ -6,7 +6,7 @@ https://sentbot.azurewebsites.net/.
 
 The web application will collect the user's text and target word. Then the send these data to the machine learning model though an API azure function.
 After ananlysing the result will send back to the web accplication.
-![alt text](https://i.ibb.co/LgbMdp5/example.png)
+![alt text](https://i.ibb.co/wJkXCsD/Screen-Shot-2021-08-07-at-4-35-14-pm.png)
 
 I have only tested the web app in google chrome. It might take some time to establish connection in the first time running the application.
 

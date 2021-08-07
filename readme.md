@@ -2,7 +2,7 @@ The project involed building a machine learning model for a target based sentime
 The sentiment analysis can be processed in web application with a chat box interface.
 The model is delpoyed to azure function. 
 And the chat box web application is delpoyed to web appication in azure.
-https://sentbot.azurewebsites.net/.
+https://sentbot.azurewebsites.net/
 
 The web application will collect the user's text and target word. Then the send these data to the machine learning model though an API azure function.
 After ananlysing the result will send back to the web accplication.
@@ -15,3 +15,26 @@ The model is builded from tensorflow library.
 
 The training is done in the train.py script.
 To run,
+python3 -m venv .venv 
+source .venv/bin/activiate
+pip install -r requirements.txt
+python train.py
+
+The implementation of the model is docuemented in the sentimentAnalysisLSTM.pdf
+
+The trained model is saved in models/
+The predict.py in models is used to test the model
+
+The graphs of loss and accuracy each models located in result/
+
+The azure_func/ contain the script to delpy the model to azure function.
+
+The sentiment_bot folder contain the the web application built in flask and python3.
+To run locally,
+cd setniment_bot
+python3 -m venv .venv 
+source .venv/bin/activiate
+pip install -r requirements.txt
+flask run
+
+The data file contains the training data and testing data.

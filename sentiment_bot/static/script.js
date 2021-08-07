@@ -3,16 +3,18 @@ var splitted_sentence = "";
 var target = "";
 var targetWord = "";
 
-const Http = new XMLHttpRequest();
-var url = window.location.href+"classify?"
-
+var url = window.location.href+"analysis/?"
+url = url.replace("http:", "")
 const sendHandler = ()=>{
     let text = document.getElementById('user_input').value;
+    document.getElementById('user_input').value = ""
+    let Http = new XMLHttpRequest();
     display("user", text);
     if(!sentence){
         sentence = text.toLowerCase().replace(/[^\w\s]|_/g, "").replace(/\s{2,}/g," ");
         splitted_sentence = sentence.split(" ")
         display("bot", "What is your target word?");
+        
     } else{
         parsedText = text.toLowerCase().trim()
         index = splitted_sentence.indexOf(parsedText)
@@ -26,9 +28,9 @@ const sendHandler = ()=>{
         sentenceWithSpace =  encodeURIComponent(sentence.trim())
         var composedUrl = url + "sentence=" + sentenceWithSpace + "&target="+target
         Http.onreadystatechange = function() { 
-            display("bot", "Analysing...")
             if(Http.readyState == 4 && Http.status == 200){
                 result = JSON.parse(Http.responseText)
+            
                 var message = "I think the sentiment of \"<i>" + targetWord+ "</i>\" in your text: \"<i>" + sentence + "</i>\" is <b>" + result.sentiment + "</b>."
                 if(result){
                     display("bot", message)
@@ -40,6 +42,7 @@ const sendHandler = ()=>{
             }
            
         }
+        
         Http.open("GET", composedUrl)
         Http.send(null); 
         
@@ -73,5 +76,5 @@ const display = (speaker, message) =>{
 
 const reset = () =>{
     sentence = ""
-    display("bot", "What is your sentence?")
+    display("bot", "What is your text?")
 }

@@ -12,7 +12,7 @@ app = Flask(__name__)
 def hello():
     return render_template('index.html')
 
-@app.route('/classify/')
+@app.route('/analysis/')
 def classify():
     sentence = request.args.get('sentence')
     target= int(request.args.get('target'))

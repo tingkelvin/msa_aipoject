@@ -6,7 +6,6 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
 import spacy
 
-
 pos_cat = pd.DataFrame({'pos':['ADJ', 'ADP', 'ADV', 'AUX', 'CCONJ', 'DET', 'INTJ', 'NOUN', 'NUM','PART', 'PRON', 'PROPN', 'SCONJ', 'SPACE', 'VERB', 'X']},dtype="category")
 tag_cat = pd.DataFrame({'tag':['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'JJ', 'JJR', 'JJS', 'LS', 'MD','NN', 'NNP','NNPS', 'NNS', 'PDT', 'PRP', 'PRP$', 'RB', 'RBR', 'RBS', 'RP','TO', 'UH', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'WDT', 'WP', 'WRB','XX', '_SP']},dtype="category")
 dep_cat = pd.DataFrame({'dep':['ROOT', 'acl', 'acomp', 'advcl', 'advmod', 'agent', 'amod', 'appos',

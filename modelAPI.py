@@ -11,7 +11,6 @@ from matplotlib.backends.backend_pdf import PdfPages, FigureCanvasPdf
 tf.random.set_seed(1234)
 adam = Adam(learning_rate=0.001)
 
-
 def getEmbeddingMatrix(word2index, vocab_len, embed_vector_len, gloVec):
     emb_matrix = np.zeros((vocab_len + 2, embed_vector_len))
     for word, index in word2index.items():
